@@ -1,0 +1,49 @@
+import streamlit as st
+import requests
+from datetime import datetime
+from typing import List
+
+API_URL = "http://localhost:8000"
+
+st.set_page_config(page_title="Academic Research Paper Assistant", layout="wide")
+
+st.title("📚 Academic Research Paper Assistant")
+
+# Sidebar for topic input
+st.sidebar.header("Search for Research Papers")
+topic = st.sidebar.text_input("Enter Research Topic:")
+if st.sidebar.button("Search Papers"):
+    with st.spinner('Fetching papers...'):
+        response = requests.post(f"{API_URL}/collect_papers/", json={"topic": topic})
+        if response.status_code == 200:
+            st.success(response.json()["message"])
+        else:
+            st.error("Failed to collect papers.")
+
+# Display Papers
+if topic:
+    st.header(f"Papers related to '{topic}'")
+    response = requests.post(f"{API_URL}/generate_review/", json={"topic": topic})
+    if response.status_code == 200:
+        review = response.json()["review_paper"]
+        st.subheader("Generated Review Paper")
+        st.text_area("Review Paper", review, height=300)
+    else:
+        st.error("Failed to generate review paper.")
+
+    # Chat Interface
+    st.subheader("Ask Questions about the Papers")
+    user_question = st.text_input("Enter your question:")
+    if st.button("Ask"):
+        with st.spinner('Processing your question...'):
+            response = requests.post(f"{API_URL}/answer_question/", json={"topic": topic, "question": user_question})
+            if response.status_code == 200:
+                answer = response.json()["answer"]
+                references = response.json().get("references", [])
+                st.write(f"**Answer:** {answer}")
+                if references:
+                    st.write("**References:**")
+                    for ref in references:
+                        st.write(f"- {ref}")
+            else:
+                st.error("Failed to get answer.")^X666666x

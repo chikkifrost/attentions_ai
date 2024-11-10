@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+neo4j
+transformers
+torch
+streamlit
+python-dotenv
+requests
+pydantic
+feedparser
+unittest
